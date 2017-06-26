@@ -1,0 +1,36 @@
+group 'com.github.appdictive'
+//version '1.6'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+mainClassName = "dk.appdictive.adbwificonnect.Main"
+
+dependencies {
+//    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '1.2.16'
+//    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '1.2.16'
+    compile 'log4j:log4j:1.2.17'
+}
+
+jar {
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes(
+                'Main-Class': 'dk.appdictive.adbwificonnect.Main'
+        )
+        //                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+    }
+}

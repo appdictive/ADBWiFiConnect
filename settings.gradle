@@ -1,0 +1,3 @@
+rootProject.name = 'ADBWiFiConnect'
+include 'ADBWiFiConnectGUI'
+
