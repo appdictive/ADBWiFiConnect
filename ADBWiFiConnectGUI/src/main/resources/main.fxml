@@ -13,14 +13,14 @@
     <center>
         <VBox BorderPane.alignment="CENTER">
             <children>
-                <Label text="ADB connected devices">
+                <Label text="ADB connected devices" styleClass="label-header">
                 <VBox.margin>
                     <Insets bottom="4.0" />
                 </VBox.margin></Label>
 
                 <ListView fx:id="listView" />
 
-                <Label text="Saved devices">
+                <Label text="Saved devices" styleClass="label-header">
                     <VBox.margin>
                         <Insets bottom="4.0" top="25.0"/>
                     </VBox.margin></Label>
@@ -46,7 +46,7 @@
     <bottom>
         <VBox BorderPane.alignment="CENTER">
             <children>
-                <Label text="Console output">
+                <Label text="Console output" styleClass="label-header">
                <VBox.margin>
                   <Insets bottom="4.0" />
                </VBox.margin></Label>

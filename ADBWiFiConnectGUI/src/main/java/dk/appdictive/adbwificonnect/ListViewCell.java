@@ -31,9 +31,9 @@ public class ListViewCell extends ListCell<Device> implements Initializable
     @FXML
     private Label deviceAddress;
     @FXML
-    private Button connectAndDisconnectButton;
+    private Button connectAndSaveButton;
     @FXML
-    private Button saveAndDeleteButton;
+    private Button deleteAndDisconnectButton;
 
     private Main main;
 
@@ -62,27 +62,33 @@ public class ListViewCell extends ListCell<Device> implements Initializable
             }
 
             deviceName.setText(device.getName());
-            saveAndDeleteButton.setVisible(false);
-            connectAndDisconnectButton.setVisible(true);
+            deleteAndDisconnectButton.setVisible(true);
+            connectAndSaveButton.setDisable(false);
 
             if (device.getType() == Device.DEVICE_TYPE_USB) {
-                connectAndDisconnectButton.setText("Connect");
+                deleteAndDisconnectButton.setVisible(false);
+                connectAndSaveButton.setText("CONNECT");
                 connectionType.setText("USB");
                 deviceAddress.setText(device.getSerialID());
             } else if (device.getType() == Device.DEVICE_TYPE_REMOTE) {
-                connectAndDisconnectButton.setText("Disconnect");
+                deleteAndDisconnectButton.setText("DISCONNECT");
                 connectionType.setText("WI-FI");
                 deviceAddress.setText(device.getRemoteIP());
-                saveAndDeleteButton.setVisible(true);
-                saveAndDeleteButton.setText("Save");
+                connectAndSaveButton.setText("SAVE");
+                if (main.hasRemoteIPSaved(device.getRemoteIP())) {
+                    connectAndSaveButton.setDisable(true);
+                }
             } else if (device.getType() == Device.DEVICE_TYPE_SAVED_REMOTE) {
-                connectAndDisconnectButton.setText("Connect");
-                connectionType.setText("Saved");
+                if (main.isCurrentlyConnectedToRemoteIP(device.getRemoteIP())) {
+                    connectAndSaveButton.setDisable(true);
+                }
+                connectAndSaveButton.setText("CONNECT");
+                connectionType.setText("");
                 deviceAddress.setText(device.getRemoteIP());
-                saveAndDeleteButton.setVisible(true);
-                saveAndDeleteButton.setText("Delete");
+                deleteAndDisconnectButton.setText("DELETE");
             } else {
-                connectAndDisconnectButton.setVisible(false);
+                connectAndSaveButton.setVisible(false);
+                deleteAndDisconnectButton.setVisible(false);
                 if (device.getType() == Device.DEVICE_TYPE_OFFLINE) connectionType.setText("OFFLINE");
             }
 
@@ -98,7 +104,7 @@ public class ListViewCell extends ListCell<Device> implements Initializable
             @Override
             public void handle(MouseEvent event) {
                 Device item = getItem();
-                if (item.getType() == Device.DEVICE_TYPE_SAVED_REMOTE){
+                if (item != null && item.getType() == Device.DEVICE_TYPE_SAVED_REMOTE){
                     TextInputDialog textInputDialog = new TextInputDialog(item.getName());
                     textInputDialog.setTitle("Set device name");
                     textInputDialog.setHeaderText("");
@@ -112,27 +118,26 @@ public class ListViewCell extends ListCell<Device> implements Initializable
             }
         });
 
-        connectAndDisconnectButton.setOnAction(new EventHandler<ActionEvent>() {
+        connectAndSaveButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Device item = getItem();
                 if (item.getType() == Device.DEVICE_TYPE_USB) {
-                    ADBCommands.usbConnectToDevice(item);
+                    ADBCommands.usbConnectToDeviceAsync(item, connectAndSaveButton);
                 } else if (item.getType() == Device.DEVICE_TYPE_SAVED_REMOTE){
-                    ADBCommands.remoteConnectToDevice(item);
+                    ADBCommands.remoteConnectToDeviceAsync(item, connectAndSaveButton);
                 } else if (item.getType() == Device.DEVICE_TYPE_REMOTE){
-                    ADBCommands.disconnectDevice(item);
-//                    connectionButton.setDisable(true);
+                    main.saveConnection(item);
                 }
             }
         });
 
-        saveAndDeleteButton.setOnAction(new EventHandler<ActionEvent>() {
+        deleteAndDisconnectButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Device item = getItem();
                 if (item.getType() == Device.DEVICE_TYPE_REMOTE) {
-                    main.saveConnection(item);
+                    ADBCommands.disconnectDeviceAsync(item);
                 } else if (item.getType() == Device.DEVICE_TYPE_SAVED_REMOTE){
                     main.deleteConnection(item);
                 }

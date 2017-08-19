@@ -1,5 +1,7 @@
 package dk.appdictive.adbwificonnect;
 
+import javafx.application.Platform;
+import javafx.scene.control.Button;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -83,8 +85,13 @@ public class ADBCommands {
     }
 
     public static String getDeviceName(Device device) {
-        String output = runCommand(getAdbSpecificDevice(device) + " shell getprop ro.product.model");
-        String deviceName = output.trim();
+        String model = runCommand(getAdbSpecificDevice(device) + " shell getprop ro.product.model");
+        String manufacturer = runCommand(getAdbSpecificDevice(device) + " shell getprop ro.product.manufacturer");
+        String androidVersionName = runCommand(getAdbSpecificDevice(device) + " shell getprop ro.build.version.release");
+        String androidVersionCode = runCommand(getAdbSpecificDevice(device) + " shell getprop ro.build.version.sdk");
+
+        String deviceName = manufacturer.trim() + " " + model.trim() + " (Android " + androidVersionName.trim() + ", SDK " + androidVersionCode.trim() + ")";
+
         return deviceName;
     }
 
@@ -113,6 +120,15 @@ public class ADBCommands {
         }
     }
 
+    public static void disconnectDeviceAsync(Device device) {
+        Runnable r = new Runnable() {
+            public void run() {
+                disconnectDevice(device);
+            }
+        };
+        new Thread(r).start();
+    }
+
     public static boolean usbConnectToDevice(Device device) {
         runCommand(getAdbSpecificDevice(device) + " tcpip " + ADB_DEVICE_PORT);
         String output = runCommand(Main.adbPath + " connect " + device.getRemoteIP() + ":" + ADB_DEVICE_PORT);
@@ -124,6 +140,23 @@ public class ADBCommands {
         }
     }
 
+    public static void usbConnectToDeviceAsync(Device device, Button connectButton) {
+        connectButton.setDisable(true);
+        Runnable r = new Runnable() {
+            public void run() {
+                usbConnectToDevice(device);
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (connectButton != null) connectButton.setDisable(false);
+                    }
+                });
+            }
+        };
+        new Thread(r).start();
+    }
+
     public static boolean remoteConnectToDevice(Device device) {
         String output = runCommand(Main.adbPath + " connect " + device.getRemoteIP() + ":" + ADB_DEVICE_PORT);
         log.debug(output);
@@ -133,5 +166,23 @@ public class ADBCommands {
             return true;
         }
     }
+
+    public static void remoteConnectToDeviceAsync(Device device, Button connectButton) {
+        connectButton.setDisable(true);
+        Runnable r = new Runnable() {
+            public void run() {
+                remoteConnectToDevice(device);
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (connectButton != null) connectButton.setDisable(false);
+                    }
+                });
+            }
+        };
+        new Thread(r).start();
+    }
+
 
 }

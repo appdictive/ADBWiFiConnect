@@ -16,6 +16,7 @@ dependencies {
 //    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '1.2.16'
 //    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '1.2.16'
     compile 'log4j:log4j:1.2.17'
+    compile 'com.jfoenix:jfoenix:1.4.0'
 }
 
 jar {

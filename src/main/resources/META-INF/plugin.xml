@@ -2,7 +2,7 @@
 <idea-plugin>
   <id>dk.appdictive.adbwificonnect</id>
   <name>ADB WiFi Connect</name>
-  <version>1.4</version>
+  <version>1.6</version>
   <vendor email="team.appdictive@gmail.com" url="https://github.com/appdictive">Appdictive</vendor>
 
   <description><![CDATA[
@@ -11,7 +11,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      1.4 Added list of saved connections and a welcome message.
+      1.6 Lots of UI and performance improvements. Added error notification for missing adb in environment at launch.
     ]]>
   </change-notes>
 

@@ -13,10 +13,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
@@ -46,6 +44,7 @@ public class Main extends Application implements Initializable {
     private Logger log = Logger.getLogger(Main.class.getName());
     private OnScreenConsoleOutputDelegate onScreenConsoleOutputDelegate;
     public static String adbPath;
+    private String lastADBDevicesOutput;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -54,8 +53,12 @@ public class Main extends Application implements Initializable {
         loader.setController(this);
         Parent root = loader.load();
 
+        primaryStage.getIcons().addAll(
+                new Image(Main.class.getResourceAsStream("/icons/ic_adbremoteconnect.png")),
+                new Image(Main.class.getResourceAsStream("/icons/ic_adbremoteconnect@2x.png")));
         primaryStage.setTitle("ADB WiFi Connect");
         Scene scene = new Scene(root, 700, 640);
+        scene.getStylesheets().add("/stylesheet.css");
         primaryStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -139,7 +142,7 @@ public class Main extends Application implements Initializable {
 
     }
 
-    //should be run from background thread
+    //run from background thread
     private void updateListOfDevices(String[] adbDevicesListOutput) {
         ArrayList<Device> currentDevices = new ArrayList<>();
         for (String adbDeviceLine : adbDevicesListOutput) {
@@ -177,7 +180,10 @@ public class Main extends Application implements Initializable {
                 log.debug("Running update of adb devices with window active: " + isWindowActive);
                 String output = ADBCommands.runCommand(Main.adbPath + " devices");
                 log.debug(output);
-                updateListOfDevices(output.split("\n"));
+                if (!output.equals(lastADBDevicesOutput)) {
+                    updateListOfDevices(output.split("\n"));
+                    lastADBDevicesOutput = output;
+                }
 
                 try {
                     Thread.sleep(3000);
@@ -203,12 +209,18 @@ public class Main extends Application implements Initializable {
                 // Update UI here.
                 observableList.clear();
                 observableList.addAll(devices);
+                //TODO update list of saved devices (in case there's an overlap)
+                listViewSaved.refresh();
             }
         });
     }
 
-    private void saveUpdatedConnectionsList() {
-        prefs.put(PREF_SAVED_CONNECTIONS,  SerializeHelper.serializeArray(observableListSavedConnections.toArray(new Device[observableListSavedConnections.size()])));
+    private void updateSavedConnectionsList() {
+        //refresh list of current connections since list of saved connections have changed data
+        listView.refresh();
+
+        //saved the data to remember for future launches
+        prefs.put(PREF_SAVED_CONNECTIONS, SerializeHelper.serializeArray(observableListSavedConnections.toArray(new Device[observableListSavedConnections.size()])));
         try {
             prefs.flush();
         } catch (BackingStoreException e) {
@@ -216,52 +228,207 @@ public class Main extends Application implements Initializable {
         }
     }
 
-    public void saveConnection(Device device) {
+    public boolean hasRemoteIPSaved(String remoteIP) {
         for (Device savedDevice : observableListSavedConnections) {
-            if (device.getRemoteIP().equals(savedDevice.getRemoteIP())) {
-                observableListSavedConnections.remove(savedDevice);
-                break;
+            if (remoteIP.equals(savedDevice.getRemoteIP())) {
+                return true;
             }
         }
+        return false;
+    }
 
-        Device newSavedConnection = new Device();
-        newSavedConnection.setName(device.getName());
-        newSavedConnection.setRemoteIP(device.getRemoteIP());
-        newSavedConnection.setSerialID(device.getSerialID());
-        newSavedConnection.setType(Device.DEVICE_TYPE_SAVED_REMOTE);
-        observableListSavedConnections.add(0, newSavedConnection);
+    public boolean isCurrentlyConnectedToRemoteIP(String remoteIP) {
+        for (Device currentConnectedDevice : observableList) {
+            if (currentConnectedDevice.type == Device.DEVICE_TYPE_REMOTE && remoteIP.equals(currentConnectedDevice.getRemoteIP())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        saveUpdatedConnectionsList();
+    public void saveConnection(Device device) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                for (Device savedDevice : observableListSavedConnections) {
+                    if (device.getRemoteIP().equals(savedDevice.getRemoteIP())) {
+                        observableListSavedConnections.remove(savedDevice);
+                        break;
+                    }
+                }
+
+                Device newSavedConnection = new Device();
+                newSavedConnection.setName(device.getName());
+                newSavedConnection.setRemoteIP(device.getRemoteIP());
+                newSavedConnection.setSerialID(device.getSerialID());
+                newSavedConnection.setType(Device.DEVICE_TYPE_SAVED_REMOTE);
+                observableListSavedConnections.add(0, newSavedConnection);
+
+                updateSavedConnectionsList();
+            }
+        });
     }
 
     public void deleteConnection(Device device) {
-        for (Device savedDevice : observableListSavedConnections) {
-            if (device.getRemoteIP().equals(savedDevice.getRemoteIP())) {
-                observableListSavedConnections.remove(savedDevice);
-                saveUpdatedConnectionsList();
-                return;
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                for (Device savedDevice : observableListSavedConnections) {
+                    if (device.getRemoteIP().equals(savedDevice.getRemoteIP())) {
+                        observableListSavedConnections.remove(savedDevice);
+                        updateSavedConnectionsList();
+                        return;
+                    }
+                }
             }
-        }
+        });
     }
 
-    public void setupListView()
-    {
-        listView.setItems(observableList);
-        listView.setCellFactory(new Callback<ListView<Device>, ListCell<Device>>()
-        {
+    public void setupListView() {
+        listView.setSelectionModel(new TableSelectionModel() {
             @Override
-            public ListCell<Device> call(ListView<Device> listView)
-            {
+            public boolean isSelected(int row, TableColumnBase column) {
+                return false;
+            }
+
+            @Override
+            public void select(int row, TableColumnBase column) {
+
+            }
+
+            @Override
+            public void clearAndSelect(int row, TableColumnBase column) {
+
+            }
+
+            @Override
+            public void clearSelection(int row, TableColumnBase column) {
+
+            }
+
+            @Override
+            public void selectLeftCell() {
+
+            }
+
+            @Override
+            public void selectRightCell() {
+
+            }
+
+            @Override
+            public void selectAboveCell() {
+
+            }
+
+            @Override
+            public void selectBelowCell() {
+
+            }
+
+            @Override
+            public void selectRange(int minRow, TableColumnBase minColumn, int maxRow, TableColumnBase maxColumn) {
+
+            }
+
+            @Override
+            protected int getItemCount() {
+                return 0;
+            }
+
+            @Override
+            protected Object getModelItem(int index) {
+                return null;
+            }
+
+            @Override
+            protected void focus(int index) {
+
+            }
+
+            @Override
+            protected int getFocusedIndex() {
+                return 0;
+            }
+        });
+        listView.setItems(observableList);
+        listView.setCellFactory(new Callback<ListView<Device>, ListCell<Device>>() {
+            @Override
+            public ListCell<Device> call(ListView<Device> listView) {
                 return new ListViewCell(Main.this);
             }
         });
 
-        listViewSaved.setItems(observableListSavedConnections);
-        listViewSaved.setCellFactory(new Callback<ListView<Device>, ListCell<Device>>()
-        {
+        listViewSaved.setSelectionModel(new TableSelectionModel() {
             @Override
-            public ListCell<Device> call(ListView<Device> listView)
-            {
+            public boolean isSelected(int row, TableColumnBase column) {
+                return false;
+            }
+
+            @Override
+            public void select(int row, TableColumnBase column) {
+
+            }
+
+            @Override
+            public void clearAndSelect(int row, TableColumnBase column) {
+
+            }
+
+            @Override
+            public void clearSelection(int row, TableColumnBase column) {
+
+            }
+
+            @Override
+            public void selectLeftCell() {
+
+            }
+
+            @Override
+            public void selectRightCell() {
+
+            }
+
+            @Override
+            public void selectAboveCell() {
+
+            }
+
+            @Override
+            public void selectBelowCell() {
+
+            }
+
+            @Override
+            public void selectRange(int minRow, TableColumnBase minColumn, int maxRow, TableColumnBase maxColumn) {
+
+            }
+
+            @Override
+            protected int getItemCount() {
+                return 0;
+            }
+
+            @Override
+            protected Object getModelItem(int index) {
+                return null;
+            }
+
+            @Override
+            protected void focus(int index) {
+
+            }
+
+            @Override
+            protected int getFocusedIndex() {
+                return 0;
+            }
+        });
+        listViewSaved.setItems(observableListSavedConnections);
+        listViewSaved.setCellFactory(new Callback<ListView<Device>, ListCell<Device>>() {
+            @Override
+            public ListCell<Device> call(ListView<Device> listView) {
                 return new ListViewCell(Main.this);
             }
         });

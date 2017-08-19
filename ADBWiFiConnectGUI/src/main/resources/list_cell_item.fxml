@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<HBox fx:id="hBox" fillHeight="true" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1">
+
+<HBox fx:id="hBox" fillHeight="true" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label fx:id="connectionType" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" prefWidth="65.0" text="Connection type" />
-        <Label fx:id="deviceAddress" maxHeight="1.7976931348623157E308"  prefWidth="125.0" text="Device address" />
+        <Label fx:id="deviceAddress" maxHeight="1.7976931348623157E308" prefWidth="125.0" text="Device address" />
         <Label fx:id="deviceName" maxHeight="1.7976931348623157E308" text="Device name" />
 
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="saveAndDeleteButton" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Connect"><HBox.margin>
+        <JFXButton fx:id="deleteAndDisconnectButton" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Connect" styleClass="button-raised-secondary"><HBox.margin>
             <Insets bottom="5.0" right="5.0" top="5.0" />
-        </HBox.margin></Button>
-        <Button fx:id="connectAndDisconnectButton" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Connect">
+        </HBox.margin></JFXButton>
+        <JFXButton fx:id="connectAndSaveButton" alignment="CENTER_RIGHT" buttonType="RAISED" mnemonicParsing="false" text="Connect" styleClass="button-raised-primary">
          <HBox.margin>
             <Insets bottom="5.0" right="5.0" top="5.0" />
-         </HBox.margin></Button>
+         </HBox.margin></JFXButton>
     </children>
 </HBox>

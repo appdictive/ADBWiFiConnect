@@ -1,0 +1,17 @@
+.button-raised-primary{
+    -fx-padding: 0.5em 0.57em;
+    -fx-font-size: 12px;
+    -jfx-button-type: FLAT;
+    -fx-background-color: #00897b;
+    -fx-text-fill: WHITE;
+}
+
+.button-raised-secondary{
+    -fx-padding: 0.5em 0.57em;
+    -fx-font-size: 12px;
+    -jfx-button-type: FLAT;
+}
+
+.label-header{
+    -fx-font-weight: bold;
+}

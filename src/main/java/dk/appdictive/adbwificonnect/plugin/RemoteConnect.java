@@ -1,10 +1,14 @@
 package dk.appdictive.adbwificonnect.plugin;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 
 import java.io.File;
@@ -20,10 +24,22 @@ public class RemoteConnect extends AnAction {
     private static final String PREF_JAR_LOCATION = "JAR_LOCATION", PREF_ADB_LOCATION = "ADB_LOCATION", PREFS_ID = "dk/appdictive/adbconnect";
     private Preferences prefs;
 
+    private static final String WIFI_CONNECT_TITLE = "ADB WiFi Connect";
+    private static final NotificationGroup NOTIFICATION_GROUP =
+            NotificationGroup.balloonGroup(WIFI_CONNECT_TITLE);
+
+
     @Override
     public void actionPerformed(AnActionEvent e) {
 //        Messages.showMessageDialog(e.getProject(), "isAndroidSdkAvailable: " + AndroidSdkUtils.isAndroidSdkAvailable() + " AndroidSDKPath: " + AndroidSdkUtils.getAdb(e.getProject()).getAbsolutePath(), "Information", Messages.getInformationIcon());
+        if (isADBInstalled() && getAdbPath(e.getProject()) != null) {
+            launchADBWiFiConnect(e);
+        } else {
+            showNotification("adb not found in your environment, please check Android SDK installation and setup, and confirm that adb is available from commandline.", NotificationType.ERROR);
+        }
+    }
 
+    private void launchADBWiFiConnect(AnActionEvent e) {
         String pluginsPath = PathManager.getPluginsPath();
         String path = "\"" + pluginsPath + File.separator + "ADBWiFiConnect" + File.separator + "lib" + File.separator + "ADBWiFiConnectGUI.jar" + "\"";
 
@@ -67,6 +83,21 @@ public class RemoteConnect extends AnAction {
         }
     }
 
+    public boolean isADBInstalled() {
+        return AndroidSdkUtils.isAndroidSdkAvailable();
+    }
+
+    public static void showNotification(final String message,
+                                        final NotificationType type) {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override public void run() {
+                Notification notification =
+                        NOTIFICATION_GROUP.createNotification(WIFI_CONNECT_TITLE, message, type, null);
+                Notifications.Bus.notify(notification);
+            }
+        });
+    }
+
     private String getAdbPath(Project project) {
         String adbPath = "";
         File adbFile = AndroidSdkUtils.getAdb(project);
@@ -75,6 +106,8 @@ public class RemoteConnect extends AnAction {
         }
         return adbPath;
     }
+
+
 
 }
 
