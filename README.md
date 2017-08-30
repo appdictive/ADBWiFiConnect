@@ -14,6 +14,7 @@ The window shows you a live updated list of Android devices connected to the com
 For each USB connected Android device you can connect to it over WiFi and then save the connection for future use so next time you won't even need the cable at all!
 After establishing connection over WiFi you can unplug the USB cable and continue developing and debugging wirelessly.
 
+![Screenshot of ADBWiFiConnect window](https://github.com/appdictive/ADBWiFiConnect/blob/master/ADBWiFiConnect_screen1.png)
 
 License
 ====================
