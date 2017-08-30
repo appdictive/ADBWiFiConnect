@@ -7,10 +7,12 @@ A simple quality of life project, making it easier to remote connect your daily 
 Usage
 ====================
 
-To use it run the jar file ADBWiFiConnect.jar found in the folder "out/artifacts/", or get the plugin here: https://plugins.jetbrains.com/plugin/9717-adb-wifi-connect.
+To use in Android Studio (or other IntelliJ IDE) get the plugin here: https://plugins.jetbrains.com/plugin/9717-adb-wifi-connect.
 
-On first run connect your Android device with a USB cable and connect via USB through the interface. After connecting the USB cable can be removed.
-
+ADB WiFi Connect enables you to ADB connect to your Android devices over WiFi to run and debug your Android apps without needing a USB cable (except for initial connect).
+The window shows you a live updated list of Android devices connected to the computer - including their Android version name and SDK levels.
+For each USB connected Android device you can connect to it over WiFi and then save the connection for future use so next time you won't even need the cable at all!
+After establishing connection over WiFi you can unplug the USB cable and continue developing and debugging wirelessly.
 
 
 License

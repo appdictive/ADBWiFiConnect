@@ -6,8 +6,10 @@
   <vendor email="team.appdictive@gmail.com" url="https://github.com/appdictive">Appdictive</vendor>
 
   <description><![CDATA[
-      ADB WiFi Connect lets you manage ADB connected devices and remote connect to them.<br>
-      Next version will allow for saving connections and reconnecting to them without cable.
+      ADB WiFi Connect enables you to ADB connect to your Android devices over WiFi to run and debug your Android apps without needing a USB cable (except for initial connect).<\br>
+      The window shows you a live updated list of Android devices connected to the computer - including their Android version name and SDK levels.
+      For each USB connected Android device you can connect to it over WiFi and then save the connection for future use so next time you won't even need the cable at all!
+      After establishing connection over WiFi you can unplug the USB cable and continue developing and debugging wirelessly.
     ]]></description>
 
   <change-notes><![CDATA[
