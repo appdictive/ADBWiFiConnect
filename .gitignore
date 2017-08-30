@@ -11,6 +11,7 @@ classes/
 
 # Package Files #
 *.jar
+!ADBWiFiConnectGUI/build/libs/ADBWiFiConnectGUI.jar
 
 ### Gradle ###
 .gradle

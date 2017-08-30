@@ -103,7 +103,7 @@ public class Main extends Application implements Initializable {
 
         String jarLocation = prefs.get(PREF_JAR_LOCATION, null);
         if (jarLocation != null) {
-            log.info("Find the runnable jar file here: \n" + jarLocation + "\n");
+            log.info("For launching outside of the IDE, find the runnable jar file here: \n" + jarLocation + "\n");
         }
 
         adbPath = prefs.get(PREF_ADB_LOCATION, "adb");
@@ -129,14 +129,14 @@ public class Main extends Application implements Initializable {
     private void writeWelcome(boolean hasSavedConnections) {
         if (!hasSavedConnections) {
             log.info("Welcome to ADB WiFi Connect!\n\n" +
-                    "Please plug in an Android device by USB cable, then click connect to establish a remote connection to the device. A new connection will show up on the list. Click save on the remote connection to put it on the list of saved connections and next time a remote connection is needed, simply click connect on the saved connection.\n" +
+                    "Please plug in an Android device by USB cable, make sure it is on the same WiFi as your computer and then click CONNECT to establish a remote connection to the device. A new connection will show up on the list. Click SAVE on the remote connection to add it to the list of saved connections and next time a remote connection is needed, simply click CONNECT on the saved connection.\n" +
                     "\n" +
                     "Happy developing! :)");
         } else {
             log.info("Welcome back!\n\n" +
-                    "Please click connect on a saved connection to reconnect to that, or plug in a new device with USB to make a new remote connection.\n" +
+                    "Please click CONNECT on a saved connection to reconnect to that, or plug in a new device with USB to make a new remote connection.\n" +
                     "\n" +
-                    "Happy developing! :)");
+                    "Happy developing! :)\n");
         }
 
 

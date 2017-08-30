@@ -47,8 +47,7 @@ public class OnScreenConsoleOutputDelegate extends AppenderSkeleton {
     private void addToLogOutput(String message) {
         int length = outputTextArea.getText().length();
         outputTextArea.deleteText(0, Math.max(0, length - MAX_LOG_LENGTH));
-        outputTextArea.appendText(message);
-        outputTextArea.appendText("\n");
+        outputTextArea.appendText(message + "\n");
     }
 
     public void setShowDebug(boolean showDebug) {

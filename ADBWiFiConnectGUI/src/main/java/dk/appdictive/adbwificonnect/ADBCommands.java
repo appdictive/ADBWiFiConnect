@@ -106,7 +106,7 @@ public class ADBCommands {
 
         String ipFromText = IPHelper.getIPFromText(output);
         if (ipFromText == null) {
-            log.error("Could not get device IP");
+            log.error("Could not get device IP - make sure the device is connected to your WiFi");
         }
         return ipFromText;
     }

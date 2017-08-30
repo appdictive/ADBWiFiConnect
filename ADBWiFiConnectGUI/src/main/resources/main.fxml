@@ -50,7 +50,7 @@
                <VBox.margin>
                   <Insets bottom="4.0" />
                </VBox.margin></Label>
-                <TextArea fx:id="outputTextArea" editable="false" maxHeight="Infinity" prefHeight="140.0" wrapText="true" />
+                <TextArea fx:id="outputTextArea" editable="false" maxHeight="Infinity" prefHeight="160.0" wrapText="true" />
             </children>
             <padding>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="12.0" />
